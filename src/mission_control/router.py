@@ -4,13 +4,14 @@ from fastapi import status
 from . import frontJson
 from . import stateJson
 import src.auth.router
+from .enumerations import UserRole
 
 router_mission_control = APIRouter(prefix="/mc", tags=["Mission_control"])
 
 
 @router_mission_control.get("/init", status_code=status.HTTP_200_OK, tags=["sequential"])
-async def init():
-    return {"role": "master", "data": frontJson.get_data()}
+async def init(username: str=...):
+    return {"role": UserRole.observer, "data": frontJson.get_data()}
 
 
 @router_mission_control.post("/start", tags=["sequential"])

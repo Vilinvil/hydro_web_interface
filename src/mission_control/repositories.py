@@ -2,7 +2,7 @@ import json
 import weakref
 
 from . import utils
-from . import status_mission as sm
+from .enumerations import StatusMission
 
 # Maybe need change on environment variable
 DATA_JSON_FILE = "data_storage/data.json"
@@ -52,7 +52,7 @@ class StateJson(JsonRepository):
         super().__init__(filename)
 
     def __set_status(self, status_: str):
-        if utils.is_exist_in_enum(sm.StatusMission, status_):
+        if utils.is_exist_in_enum(StatusMission, status_):
             self.data_["status"] = status_
         else:
             raise ValueError(f"status not exist in StatusMission. Your status: {status_}")
