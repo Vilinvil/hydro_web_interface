@@ -4,14 +4,13 @@ import sys
 from fastapi import FastAPI
 
 sys.path.append(os.path.join(sys.path[0], 'src'))
-import auth.router
 import mission_control.router
 
 app = FastAPI(
     title="Hydro web interface"
 )
 
-app.include_router(auth.router.router_auth)
+app.include_router(mission_control.router.src.auth.router.router_auth)
 app.include_router(mission_control.router.router_mission_control)
 
 

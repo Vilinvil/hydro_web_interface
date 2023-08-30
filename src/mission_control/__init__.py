@@ -1,5 +1,5 @@
-from . import repository
+from . import repositories
 
 
-frontJson = repository.FrontJson(repository.DATA_JSON_FILE)
-stateJson = repository.StateJson(repository.STATE_JSON_FILE)
+frontJson = repositories.FrontJson(repositories.DATA_JSON_FILE)
+stateJson = repositories.StateJson(repositories.STATE_JSON_FILE)
