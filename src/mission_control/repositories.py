@@ -4,10 +4,6 @@ import weakref
 from . import utils
 from .enumerations import StatusMission
 
-# Maybe need change on environment variable
-DATA_JSON_FILE = "data_storage/data.json"
-STATE_JSON_FILE = "data_storage/state.json"
-
 
 class JsonRepository:
     def __init__(self, filename: str):
