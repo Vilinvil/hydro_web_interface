@@ -4,8 +4,7 @@ import asyncio
 from fastapi import FastAPI
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
-from starlette.websockets import WebSocketState
-from websockets.exceptions import ConnectionClosedError
+from fastapi.websockets import WebSocketState
 from websockets.exceptions import ConnectionClosed
 
 from src.mission_control import router

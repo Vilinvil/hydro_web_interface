@@ -3,7 +3,6 @@ from fastapi import responses
 from fastapi import status
 
 from . import checks
-print(id(checks.user_controller), "from auth/router")
 
 router_auth = APIRouter(prefix="/auth", tags=["Auth"])
 

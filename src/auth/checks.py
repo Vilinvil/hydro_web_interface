@@ -9,9 +9,6 @@ from . import user_control
 user_controller = user_control.UserControl()
 
 
-print(id(user_controller), "from check id")
-
-
 # In func that was decorated with help master_required there should be positional argument username
 def master_required(func):
     @wraps(func)
