@@ -1,10 +1,8 @@
-import random
 import asyncio
 
 from fastapi import FastAPI
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
-from fastapi.websockets import WebSocketState
 from websockets.exceptions import ConnectionClosed
 
 from src.mission_control import router
@@ -38,6 +36,10 @@ class ConnectionManager:
     def __init__(self):
         self._active_connections: list[WebSocket] = []
 
+    def exist_connections(self) -> bool:
+        # return bool(self._active_connections)
+        return len(self._active_connections) > 0
+
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self._active_connections.append(websocket)
@@ -45,31 +47,22 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self._active_connections.remove(websocket)
 
-    async def send_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
+    async def send_message(self, message: dict, websocket: WebSocket):
+        await websocket.send_json(message)
 
-    async def broadcast(self, message: str):
-        for connection in self._active_connections:
-            try:
-                await connection.send_text(message)
-            except ConnectionClosed as e:
-                await connection.close(1000, "All ok")
-                self._active_connections.remove(connection)
 
 
 manager = ConnectionManager()
 
 
-@app.websocket("/ws/{username}")
-async def ws_endpoint(websocket: WebSocket, username: str):
+@app.websocket("/ws")
+async def ws_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
-    try:
-        while websocket.application_state is WebSocketState.CONNECTED:
-            await asyncio.sleep(PERIOD_SENDING_PARAMETERS)
-            rand_int = random.randint(0, 100)
-            await manager.broadcast(f"{username} send message: {rand_int}")
-
-    except (WebSocketDisconnect, ConnectionClosed) as e:
-        print(f"handle disconnect {username}. With error {e}")
-        manager.disconnect(websocket)
-        return
+    while True:
+        try:
+            await manager.send_message(router.stateJson.data_, websocket)
+        except (WebSocketDisconnect, ConnectionClosed) as e:
+            print(f"Error: {e} in websocket {websocket}")
+            manager.disconnect(websocket)
+            return
+        await asyncio.sleep(PERIOD_SENDING_PARAMETERS)
