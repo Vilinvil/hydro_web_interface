@@ -1,20 +1,15 @@
-import asyncio
-import os
 import random
-import sys
-import time
-import websockets
-# from starlette.websockets import WebSocketState
 import asyncio
 
 from fastapi import FastAPI
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
-from websockets.exceptions import ConnectionClosedOK
+from starlette.websockets import WebSocketState
+from websockets.exceptions import ConnectionClosedError
+from websockets.exceptions import ConnectionClosed
 
-# sys.path.append(os.path.join(sys.path[0], 'src'))
-from .mission_control import router
-from .mission_control.constants import PERIOD_SENDING_PARAMETERS
+from src.mission_control import router
+from src.mission_control.constants import PERIOD_SENDING_PARAMETERS
 
 app = FastAPI(
     title="Hydro web interface"
@@ -56,7 +51,11 @@ class ConnectionManager:
 
     async def broadcast(self, message: str):
         for connection in self._active_connections:
-            await connection.send_text(message)
+            try:
+                await connection.send_text(message)
+            except ConnectionClosed as e:
+                await connection.close(1000, "All ok")
+                self._active_connections.remove(connection)
 
 
 manager = ConnectionManager()
@@ -66,11 +65,12 @@ manager = ConnectionManager()
 async def ws_endpoint(websocket: WebSocket, username: str):
     await manager.connect(websocket)
     try:
-        while True:
+        while websocket.application_state is WebSocketState.CONNECTED:
             await asyncio.sleep(PERIOD_SENDING_PARAMETERS)
             rand_int = random.randint(0, 100)
             await manager.broadcast(f"{username} send message: {rand_int}")
 
-    except WebSocketDisconnect or ConnectionClosedOK as e: # BaseException as ex TODO why not worked now and BaseExeption work correctly
+    except (WebSocketDisconnect, ConnectionClosed) as e:
+        print(f"handle disconnect {username}. With error {e}")
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client {username} disconnect")
+        return
