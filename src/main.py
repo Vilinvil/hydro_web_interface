@@ -7,6 +7,7 @@ from websockets.exceptions import ConnectionClosed
 
 from src.mission_control import router
 from src.mission_control.constants import PERIOD_SENDING_PARAMETERS
+from src.mission_control import connect_manager
 
 app = FastAPI(
     title="Hydro web interface"
@@ -32,37 +33,15 @@ app.include_router(router.router_mission_control)
 #     allow_headers=["*"],
 # )
 
-class ConnectionManager:
-    def __init__(self):
-        self._active_connections: list[WebSocket] = []
-
-    def exist_connections(self) -> bool:
-        # return bool(self._active_connections)
-        return len(self._active_connections) > 0
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self._active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self._active_connections.remove(websocket)
-
-    async def send_message(self, message: dict, websocket: WebSocket):
-        await websocket.send_json(message)
-
-
-
-manager = ConnectionManager()
-
 
 @app.websocket("/ws")
 async def ws_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+    await connect_manager.connect(websocket)
     while True:
         try:
-            await manager.send_message(router.stateJson.data_, websocket)
+            await connect_manager.send_message(router.stateJson.data_, websocket)
         except (WebSocketDisconnect, ConnectionClosed) as e:
             print(f"Error: {e} in websocket {websocket}")
-            manager.disconnect(websocket)
+            connect_manager.disconnect(websocket)
             return
         await asyncio.sleep(PERIOD_SENDING_PARAMETERS)
