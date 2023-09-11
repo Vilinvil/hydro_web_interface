@@ -26,7 +26,7 @@ class JsonRepository:
                 print(f"Exception in exit_ JsonRepository in file: {self.filename_} Exception is:  {er}")
 
 
-class FrontJson(JsonRepository):
+class FrontJsonRepository(JsonRepository):
     def __init__(self, filename: str):
         super().__init__(filename)
 
@@ -43,7 +43,7 @@ class FrontJson(JsonRepository):
         return self.data_[0].get("edges", [])
 
 
-class StateJson(JsonRepository):
+class StateJsonRepository(JsonRepository):
     def __init__(self, filename: str):
         super().__init__(filename)
 
