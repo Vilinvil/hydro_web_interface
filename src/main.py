@@ -1,14 +1,8 @@
-import asyncio
-
 from fastapi import FastAPI
-from fastapi import WebSocket
-from fastapi import WebSocketDisconnect
-from websockets.exceptions import ConnectionClosed
 from fastapi.middleware.cors import CORSMiddleware
 
 import src.mission_control.router as router
-import src.mission_control as mc
-from src.mission_control.constants import PERIOD_SENDING_PARAMETERS
+
 
 app = FastAPI(
     title="Hydro web interface"
@@ -30,14 +24,4 @@ app.add_middleware(
 )
 
 
-@app.websocket("/ws")
-async def ws_endpoint(websocket: WebSocket):
-    await mc.connect_manager.connect(websocket)
-    while True:
-        try:
-            await mc.connect_manager.send_message(router.state_json_repository.data_, websocket)
-        except (WebSocketDisconnect, ConnectionClosed) as e:
-            print(f"Error: {e} in websocket {websocket}")
-            mc.connect_manager.disconnect(websocket)
-            return
-        await asyncio.sleep(PERIOD_SENDING_PARAMETERS)
+
