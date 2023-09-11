@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 from websockets.exceptions import ConnectionClosed
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.mission_control import router
 from src.mission_control.constants import PERIOD_SENDING_PARAMETERS
@@ -17,21 +18,17 @@ app.include_router(router.src.auth.router.router_auth)
 app.include_router(router.router_mission_control)
 
 
-# origins = [
-#     "http://localhost.tiangolo.com",
-#     "https://localhost.tiangolo.com",
-#     "http://localhost",
-#     "http://localhost:9000",
-#     "http://0.0.0.0:9000",
-# ]
+origins = [
+    "http://0.0.0.0:9000",
+]
 
-# app.add_middleware(
-#     # CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Access-Control-Allow-Origin", "Access-Control-Request-Headers", "Access-Control-Allow-Methods"],
+)
 
 
 @app.websocket("/ws")
