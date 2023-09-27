@@ -12,6 +12,7 @@ app.include_router(router.src.auth.router.router_auth)
 app.include_router(router.router_mission_control)
 
 origins = [
+    "http://127.0.0.1:9000",
     "http://0.0.0.0:9000",
 ]
 

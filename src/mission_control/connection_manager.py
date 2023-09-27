@@ -6,8 +6,7 @@ class ConnectionManager:
         self._active_connections: list[WebSocket] = []
 
     def exist_connections(self) -> bool:
-        # return bool(self._active_connections)
-        return len(self._active_connections) > 0
+        return bool(self._active_connections)
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
