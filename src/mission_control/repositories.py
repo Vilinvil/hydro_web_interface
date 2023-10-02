@@ -2,11 +2,7 @@ import json
 import weakref
 
 from . import utils
-from . import status_mission as sm
-
-# Maybe need change on environment variable
-DATA_JSON_FILE = "data_storage/data.json"
-STATE_JSON_FILE = "data_storage/state.json"
+from .enumerations import StatusMission
 
 
 class JsonRepository:
@@ -30,7 +26,7 @@ class JsonRepository:
                 print(f"Exception in exit_ JsonRepository in file: {self.filename_} Exception is:  {er}")
 
 
-class FrontJson(JsonRepository):
+class FrontJsonRepository(JsonRepository):
     def __init__(self, filename: str):
         super().__init__(filename)
 
@@ -47,12 +43,12 @@ class FrontJson(JsonRepository):
         return self.data_[0].get("edges", [])
 
 
-class StateJson(JsonRepository):
+class StateJsonRepository(JsonRepository):
     def __init__(self, filename: str):
         super().__init__(filename)
 
     def __set_status(self, status_: str):
-        if utils.is_exist_in_enum(sm.StatusMission, status_):
+        if utils.is_exist_in_enum(StatusMission, status_):
             self.data_["status"] = status_
         else:
             raise ValueError(f"status not exist in StatusMission. Your status: {status_}")

@@ -1,56 +1,28 @@
-import os
-import sys
-
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-sys.path.append(os.path.join(sys.path[0], 'src'))
-import auth.router
-import mission_control.router
+import src.mission_control.router as router
+
 
 app = FastAPI(
     title="Hydro web interface"
 )
 
-app.include_router(auth.router.router_auth)
-app.include_router(mission_control.router.router_mission_control)
+app.include_router(router.src.auth.router.router_auth)
+app.include_router(router.router_mission_control)
 
+origins = [
+    "http://127.0.0.1:9000",
+    "http://0.0.0.0:9000",
+]
 
-# origins = [
-#     "http://localhost.tiangolo.com",
-#     "https://localhost.tiangolo.com",
-#     "http://localhost",
-#     "http://localhost:9000",
-#     "http://0.0.0.0:9000",
-# ]
-
-# app.add_middleware(
-#     # CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Access-Control-Allow-Origin", "Access-Control-Request-Headers", "Access-Control-Allow-Methods"],
+)
 
 
 
-# @app.websocket("/ws")
-# async def wsEndpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     while True:
-#         data = get_numbers()
-#         await websocket.send_json(
-#             {
-#                 "course": data[0],
-#                 "depth": data[1],
-#                 "march": data[2],
-#                 "lag": data[3],
-#                 "roll": data[4],
-#                 "differential": data[5],
-#                 "dropper": data[6],
-#                 "lifter": data[7],
-#                 "global_mission": data[8],
-#                 "local_mission": data[9],
-#                 "transtion": data[10]
-#             }
-#         )
-#         time.sleep(1)
